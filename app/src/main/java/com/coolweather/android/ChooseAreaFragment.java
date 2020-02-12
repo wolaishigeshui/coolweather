@@ -34,6 +34,18 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 碎片
+ * 1 定义碎片的视图类，继承于Fragment，需要重写几个方法
+ *      onCreateView方法
+ *      onActivityCreated方法
+ *
+ * 2 需要给出该碎片视图类对应的xml布局文件，在本项目中是choose_area.xml布局文件
+ *
+ * 3 想要显示这个碎片，就需要用<fragment></fragment>标签，通过标签内的android:name属性
+ * 来显式指明要添加的碎片类名，一定要将类的包名也加上，在本项目中可以在activity_main.xml布局
+ * 文件中找到该标签以及name属性
+ */
 public class ChooseAreaFragment extends Fragment {
     public static final int LEVEL_PROVINCE=0;
     public static final int LEVEL_CITY=1;
@@ -95,13 +107,13 @@ public class ChooseAreaFragment extends Fragment {
         //如果root为null或者attachToRoot为false时，则调用layout.xml中的根布局的属性并且将其作为一个View对象返回。
         //如果root不为null，但attachToRoot为false时，则先将layout.xml中的根布局转换为一个View对象，再调用传进来的root的布局属性设置给这个View，然后将它返回。
         //如果root不为null，且attachToRoot为true时，则先将layout.xml中的根布局转换为一个View对象，再将它add给root，最终再把root返回出去。（两个参数的inflate如果root不为null也是相当于这种情况）
-        //此处应该是第二种情况，
+        //此处应该是第二种情况，但是通过logd日志，发现container似乎一直为null，也就是说，在此处应该是第一种情况
         //参考此链接：https://www.jianshu.com/p/3f871d95489c
         View view=inflater.inflate(R.layout.choose_area,container,false);
         Log.d("inflate_test", String.valueOf(container));//日志打印出来的全是空指针？？为什么？
         // 2020-02-12 17:05:05.824 10958-10958/com.coolweather.android D/inflate_test: null
         //2020-02-12 17:05:53.544 10958-10958/com.coolweather.android D/inflate_test: null
-        //而且不是太明白触发机制，不能复现这个情况
+        //而且不是太明白触发机制，不能复现这个情况,好像是隐藏该页面之后就会再次调用onCreateView方法
         titleText=view.findViewById(R.id.title_text);
         backButton=view.findViewById(R.id.back_button);
         listView=view.findViewById(R.id.list_view);
@@ -260,7 +272,8 @@ public class ChooseAreaFragment extends Fragment {
      */
     private void queryFromServer(String address,final String type){
         showProgressDialog();
-        HttpUtil.sendOkHttpRequest(address, new Callback() {
+        //根据address和type向服务器请求省或市或县的数据
+        HttpUtil.sendOkHttpRequest(address, new Callback() {//此CallBack回调在子线程中进行
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -274,16 +287,28 @@ public class ChooseAreaFragment extends Fragment {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                //服务器顺利传回数据之后，会回调到这个方法，否则会回调到onFailure()方法
+                //下面这行代码将从服务器传回的数据进行简单的解析，去掉头部，保留中间的body部分，并转为String类型
                 String responseText=response.body().string();
+                Log.d("response_body", String.valueOf(response.body()));
+                Log.d("response_body_string", responseText);
                 boolean result=false;
                 if ("province".equals(type)){
+                    //对服务器返回数据进行深度解析，并将解析到的结果储存到数据库中
                     result= Utility.handleProvinceResponse(responseText);
                 }else if ("city".equals(type)){
+                    //对服务器返回数据进行深度解析，并将解析到的结果储存到数据库中
                     result=Utility.handleCityResponse(responseText,selectedProvince.getId());
                 }else if ("county".equals(type)){
+                    //对服务器返回数据进行深度解析，并将解析到的结果储存到数据库中
                     result=Utility.handleCountyResponse(responseText,selectedCity.getId());
                 }
-                if (result){
+                if (result){//如果顺利接收到服务器传来的数据并顺利解析，将会进行下面的操作，
+                    // 也就是重新调用查询方法，因为在上面的操作中已经将需要显示的数据从服务器获取，
+                    // 并且储存到本地服务器中了，因此重新调用查询方法，就不会再次访问服务器，另外，
+                    // 由于在查询方法中同时完成了视图的刷新操作，而UI操作只能放在主线程中，
+                    // 所以这里需要将查询操作放在runOnUiThread()函数中
+                    //此函数能够实现从子线程切换到主线程
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
