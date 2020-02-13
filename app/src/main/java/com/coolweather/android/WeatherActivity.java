@@ -1,6 +1,9 @@
 package com.coolweather.android;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -67,6 +71,14 @@ public class WeatherActivity extends AppCompatActivity {
     //设置背景图片
     private ImageView bingPicImg;
 
+    //刷新逻辑
+    public SwipeRefreshLayout swipeRefresh;
+
+    //
+    public DrawerLayout drawerLayout;
+
+    //
+    private Button navButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,18 +106,35 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText=findViewById(R.id.car_wash_text);
         sportText=findViewById(R.id.sport_text);
         bingPicImg=findViewById(R.id.bing_pic_img);
+        swipeRefresh=findViewById(R.id.swipe_refresh);
+        drawerLayout=findViewById(R.id.drawer_layout);
+        navButton=findViewById(R.id.nav_button);
+        //设置下拉刷新进度条的颜色
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
 //@Deprecated     PreferenceManager
         //SharedPreferences对象中提供了一系列的get方法
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString=prefs.getString("weather",null);
+        //定义weatherId变量，用于记录城市的天气ID
+        final String weatherId;
         if (weatherString!=null){
             Weather weather= Utility.handleWeatherResponse(weatherString);
+            weatherId=weather.basic.weatherId;
             showWeatherInfo(weather);
         }else {
-            String weatherId=getIntent().getStringExtra("weather_id");
+            weatherId=getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+
+        //设置一个下拉刷新的监听器，当触发了下拉刷新操作的时候，就会回调这个监听器的onRefresh()方法，
+        //我们在这里去调用 requestWeather(weatherId)方法请求天气信息就可以了
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(weatherId);
+            }
+        });
 
         String bingPic=prefs.getString("bing_pic",null);
         if (bingPic!=null){
@@ -113,6 +142,14 @@ public class WeatherActivity extends AppCompatActivity {
         }else {
             loadBingPic();
         }
+
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //打开滑动菜单
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
 
 
 
@@ -134,6 +171,8 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
+                        //当请求结束后，还需要调用该方法并传入false，用于表示刷新时间结束，并隐藏刷新进度条
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
@@ -146,6 +185,8 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        //如果成功获取到天气对象，并且获取到的天气对象不是空的，
+                        // 那么就将获取到的数据存入缓存中，并更新UI
                         if (weather!=null&&"ok".equals(weather.status)){
                             //想要使用SharedPreferences来存储数据，首先需要获取到SharedPreferences对象
                             //下面通过PreferenceManager.getDefaultSharedPreferences()方法来获取该对象
@@ -162,6 +203,7 @@ public class WeatherActivity extends AppCompatActivity {
                         }else {
                             Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
                         }
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
