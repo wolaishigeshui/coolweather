@@ -299,15 +299,18 @@ public class ChooseAreaFragment extends Fragment {
      */
     private void queryFromServer(String address,final String type){
         showProgressDialog();
+//        String testAddress= "https://search.heweather.net/find?location=%E5%8C%97&key=7205afdb284a46e4b6f139642a483940";
+//        String testAddress= "https://free-api.heweather.net/s6/weather/now?location=beijing&key=7205afdb284a46e4b6f139642a483940";
         //根据address和type向服务器请求省或市或县的数据
         HttpUtil.sendOkHttpRequest(address, new Callback() {//此CallBack回调在子线程中进行
+//        HttpUtil.sendOkHttpRequest(testAddress, new Callback() {//此CallBack回调在子线程中进行
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),"加载失败--从服务器上查询"+type,Toast.LENGTH_SHORT).show();
                     }
                 });
             }

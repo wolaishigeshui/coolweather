@@ -172,7 +172,7 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherActivity.this,"没有成功接收到服务器的数据，获取天气信息失败",Toast.LENGTH_SHORT).show();
                         //当请求结束后，还需要调用该方法并传入false，用于表示刷新时间结束，并隐藏刷新进度条
                         swipeRefresh.setRefreshing(false);
                     }
@@ -205,7 +205,7 @@ public class WeatherActivity extends AppCompatActivity {
 //                            Intent intent=new Intent(this, AutoUpdateService.class);
 //                            startService(intent);
                         }else {
-                            Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(WeatherActivity.this,"成功接收到服务器的数据，但是获取天气信息失败",Toast.LENGTH_SHORT).show();
                         }
                         swipeRefresh.setRefreshing(false);
                     }
@@ -283,7 +283,7 @@ public class WeatherActivity extends AppCompatActivity {
             Intent intent=new Intent(this, AutoUpdateService.class);
             startService(intent);
         }else {
-            Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
+            Toast.makeText(WeatherActivity.this,"待显示的天气对象为空，获取天气信息失败",Toast.LENGTH_SHORT).show();
         }
 
     }
