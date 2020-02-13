@@ -1,6 +1,7 @@
 package com.coolweather.android;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
@@ -162,6 +164,18 @@ public class ChooseAreaFragment extends Fragment {
                 }else if (currentLevel==LEVEL_CITY){
                     selectedCity=cityList.get(position);
                     queryCounties();
+                }else if (currentLevel==LEVEL_COUNTY){//如果进入了第三极界面，并且用户点击了某
+                    // 一项，则会触发该项的点击事件，进入此方法
+                    //通过position参数可以知道用户点击的具体位置，根据这个参数拿到对应第三极城市的天气id，
+                    // 以供之后的再次向服务器进行天气信息的请求。
+                    String weatherId=countyList.get(position).getWeatherId();
+                    //创建Intent实例，跳转到WeatherActivity活动，并向该实例中添加weather_id数据，以供
+                    // WeatherActivity活动获取到weather_id，从而向服务器请求天气数据
+                    Intent intent=new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                     //销毁该活动
+                    getActivity().finish();
                 }
             }
         });

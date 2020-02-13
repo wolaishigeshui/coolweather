@@ -1,10 +1,13 @@
 package com.coolweather.android.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +30,8 @@ public class Utility {
                 //从字符串String获得JSONObject对象和JSONArray对象
                 //JSONObject  jsonObject  = new JSONObject ( String  str);
                 //JSONArray jsonArray = new JSONArray(String    str  ) ;
+                //由于在此处服务器传回的是类似[{"id":1,"name":"北京"},{"id":2,"name":"上海"},...]的
+                // 数组对象，所以需要将response转换为json数组对象
                 JSONArray allProvinces=new JSONArray(response);
                 for (int i=0;i<allProvinces.length();i++){
                     //从JSONArray中获得JSONObject对象
@@ -100,5 +105,26 @@ public class Utility {
             }
         }
         return false;
+    }
+
+    public static Weather handleWeatherResponse(String response){
+        try{
+            Log.d("Weather_response1", response);
+            //在这里服务器返回的是{}类型，所以要使用jsonobject
+            JSONObject jsonObject=new JSONObject(response);
+            //获取json对象中属性名为"HeWeather"的json数组
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
+            Log.d("Weather_response11", String.valueOf(jsonArray));
+            //获取json数组中的第一项并转型为字符串类型
+            String weatherContent=jsonArray.getJSONObject(0).toString();
+            Log.d("Weather_response111", weatherContent);
+            //Gson().fromJson
+            // 将weatherContent json数据转换为Weather类型的对象，并返回该对象
+            //  参考链接： https://www.jianshu.com/p/bca8117ad49e
+            return new Gson().fromJson(weatherContent,Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
