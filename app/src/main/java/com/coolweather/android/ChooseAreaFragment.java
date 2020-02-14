@@ -19,18 +19,32 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.coolweather.android.db.City;
+import com.coolweather.android.db.City1;
 import com.coolweather.android.db.County;
+import com.coolweather.android.db.County1;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.db.Province1;
 import com.coolweather.android.gson.Weather;
+import com.coolweather.android.util.GetJsonDataUtil;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -49,6 +63,11 @@ import okhttp3.Response;
  * 文件中找到该标签以及name属性
  */
 public class ChooseAreaFragment extends Fragment {
+
+    private List<Province1> provinceList1=new ArrayList<>();
+    private List<City1>cityList1=new ArrayList<>();
+    private List<County1>countyList1=new ArrayList<>();
+
     public static final int LEVEL_PROVINCE=0;
     public static final int LEVEL_CITY=1;
     public static final int LEVEL_COUNTY=2;
@@ -58,6 +77,11 @@ public class ChooseAreaFragment extends Fragment {
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private List<String> dataList=new ArrayList<>();
+
+
+
+
+
 
     /**
      * 省列表
@@ -78,11 +102,13 @@ public class ChooseAreaFragment extends Fragment {
      * 选中的省份
      */
     private Province selectedProvince;
+    private Province1 selectedProvince1;
 
     /**
      * 选中的城市
      */
     private City selectedCity;
+    private City1 selectedCity1;
 
     /**
      * 当前选中的级别
@@ -142,8 +168,47 @@ public class ChooseAreaFragment extends Fragment {
         adapter=new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
         //绑定适配器
         listView.setAdapter(adapter);
+
+
+//        String s=new GetJsonDataUtil().getJson(getActivity(),"city.json");
+//        Log.d("abcd", "onActivityCreated: "+provinceList1);
+//        if (provinceList1.size()<=0){
+//            try {
+//                JSONArray jsonArray1=new JSONArray(s);
+//                for (int i=0;i<jsonArray1.length();i++){
+//                    JSONObject jsonObject1=jsonArray1.getJSONObject(i);
+//                    String temp=jsonObject1.getString("provinceEn");
+//                    int j=0;
+//                    for (;j<provinceList1.size();j++){
+//                        if (provinceList1.get(j).getProvinceEn().equals(temp))break;
+//                    }
+//                    if (j==provinceList1.size()){
+//                        Province1 province1=new Province1();
+//                        province1.setProvinceEn(temp);
+//                        province1.setProvinceZh(jsonObject1.getString("provinceZn"));
+//                        provinceList1.add(province1);
+//                    }
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        for (int k=0;k<provinceList1.size();k++){
+//            Log.d("provinceList1"+k, k+"    "+provinceList1.get(k));
+//        }
+//
+//        Log.d("getJson", s);
+//        Log.d("getJson1", String.valueOf(s.length()));
+
+
+
+
         return view;
     }
+
+
+
+
 
     /**
      * onCreateView()：每次创建、绘制该Fragment的View组件时回调该方法，Fragment将会显示该方法返回的View组件。
@@ -155,14 +220,151 @@ public class ChooseAreaFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+
+        String s=new GetJsonDataUtil().getJson(getActivity(),"city.json");
+        Log.d("abcd", "onActivityCreated: "+provinceList1);
+        if (provinceList1.size()<=0){
+            try {
+                JSONArray jsonArray1=new JSONArray(s);
+                for (int i=0;i<jsonArray1.length();i++){
+                    JSONObject jsonObject1=jsonArray1.getJSONObject(i);
+                    String id=jsonObject1.getString("id");
+                    String cityEn=jsonObject1.getString("cityEn");
+                    String cityZh=Utility.decode(jsonObject1.getString("cityZh"));
+                    String leaderEn=jsonObject1.getString("leaderEn");
+                    String leaderZh=Utility.decode(jsonObject1.getString("leaderZh"));
+                    String lat=jsonObject1.getString("lat");
+                    String lon=jsonObject1.getString("lon");
+                    String provinceEn=jsonObject1.getString("provinceEn");
+                    String provinceZh=Utility.decode(jsonObject1.getString("provinceZh"));
+
+
+
+                    if (cityEn.equals(leaderEn)){//说明这是一个市
+                        if (cityEn.equals("danleng")){
+                            Log.d("QWER", "++++++++++++++++++++++++++++++"+cityZh);
+                        }
+                        City1 city1=new City1();
+                        city1.setId(id);
+                        city1.setCityEn(cityEn);
+                        city1.setCityZh(cityZh);
+                        city1.setLeaderEn(leaderEn);
+                        city1.setLeaderZh(leaderZh);
+                        city1.setLat(lat);
+                        city1.setLon(lon);
+                        city1.setProvinceEn(provinceEn);
+                        city1.setProvinceZh(provinceZh);
+                        cityList1.add(city1);
+                    }else {
+                        if (cityEn.equals("danleng")){
+                            Log.d("QWER", "---------------------"+cityZh);
+                        }
+                        County1 county1=new County1();
+                        county1.setId(id);
+                        county1.setCityEn(cityEn);
+                        county1.setCityZh(cityZh);
+                        county1.setLeaderEn(leaderEn);
+                        county1.setLeaderZh(leaderZh);
+                        county1.setLat(lat);
+                        county1.setLon(lon);
+                        county1.setProvinceEn(provinceEn);
+                        county1.setProvinceZh(provinceZh);
+                        countyList1.add(county1);
+                    }
+
+
+
+
+
+
+                    int j=0;
+                    for (;j<provinceList1.size();j++){
+                        if (provinceList1.get(j).getProvinceEn().equals(provinceEn)||provinceList1.get(j).getProvinceZh().equals(provinceZh))break;
+                    }
+                    if (j==provinceList1.size()){
+                        Province1 province1=new Province1();
+                        province1.setProvinceEn(provinceEn);
+                        Log.d("provinceList1", ":::::1:::::"+provinceEn);
+                        province1.setProvinceZh(provinceZh);
+//                        province1.setProvinceZh("中国");
+                        Log.d("provinceList1", "::::::2::::"+provinceZh);
+                        Log.d("provinceList1", "::::::3::::"+province1.getProvinceZh());
+                        provinceList1.add(province1);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d("provinceList1", "asdasdasdasd");
+        for (int k=0;k<provinceList1.size();k++){
+            Log.d("provinceList1", k+"    "+provinceList1.get(k));
+        }
+        for (int k=0;k<cityList1.size();k++){
+            Log.d("cityList1", k+"    "+cityList1.get(k));
+        }
+        for (int k=0;k<countyList1.size();k++){
+            Log.d("countyList1", k+"    "+countyList1.get(k));
+            if (countyList1.get(k).getCityEn().equals("danleng")){
+                Log.d("QWER", "<><><><><><><><><><><><><><><>"+countyList1.get(k).getCityZh());
+            }
+        }
+        for (int k=0;k<cityList1.size();k++){
+            String tempName=cityList1.get(k).getCityEn();
+            int j;
+            for (j=0;j<countyList1.size();j++){
+                if (tempName.equals(countyList1.get(j).getLeaderEn()))break;
+            }
+            if (j==countyList1.size()){
+                County1 county1=new County1();
+                county1.setId(cityList1.get(k).getId());
+                county1.setCityEn(cityList1.get(k).getCityEn());
+                county1.setCityZh(Utility.decode(cityList1.get(k).getCityZh()));
+                county1.setLeaderEn(cityList1.get(k).getLeaderEn());
+                county1.setLeaderZh(Utility.decode(cityList1.get(k).getLeaderZh()));
+                county1.setLat(cityList1.get(k).getLat());
+                county1.setLon(cityList1.get(k).getLon());
+                county1.setProvinceEn(cityList1.get(k).getProvinceEn());
+                county1.setProvinceZh(Utility.decode(cityList1.get(k).getProvinceZh()));
+                countyList1.add(county1);
+            }
+        }
+
+
+        Log.d("getJson", s);
+        Log.d("getJson1", String.valueOf(s.length()));
+
+
+
+
+
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (currentLevel==LEVEL_PROVINCE){
-                    selectedProvince=provinceList.get(position);
+//                    selectedProvince=provinceList.get(position);
+                    selectedProvince1=provinceList1.get(position);
+                    Toast.makeText(getContext(),selectedProvince1.getProvinceZh()+position,Toast.LENGTH_SHORT).show();
+                    Log.d("aaa1p", selectedProvince1.toString()+position);
                     queryCities();
                 }else if (currentLevel==LEVEL_CITY){
-                    selectedCity=cityList.get(position);
+//                    selectedCity=cityList.get(position);
+//                    selectedCity1=cityList1.get(position);
+                    String tempCityZh=dataList.get(position);
+                    Log.d("aaaa", "-+-+-+-+-+-+-+-+-+"+tempCityZh);
+                    for (int i=0;i<cityList1.size();i++){
+                        Log.d("aaaa", tempCityZh+"|||||||||"+cityList1.get(i).getCityZh());
+                        if (tempCityZh.split(" ")[0].equals(cityList1.get(i).getCityZh())){
+//                        if (tempCityZh==cityList1.get(i).getCityZh()){
+                            selectedCity1=cityList1.get(i);
+                            Log.d("aaaa", "------------++++++++++++: "+String.valueOf(selectedCity1));
+                            break;
+                        }
+                    }
+//                    Toast.makeText(getContext(),selectedCity1.getCityZh()+position,Toast.LENGTH_SHORT).show();
+                    Log.d("aaa1f", String.valueOf(selectedCity1)+position);
                     queryCounties();
                 }else if (currentLevel==LEVEL_COUNTY){
 //                    //如果进入了第三极界面，并且用户点击了某
@@ -177,17 +379,42 @@ public class ChooseAreaFragment extends Fragment {
 //                    startActivity(intent);
 //                     //销毁该活动
 //                    getActivity().finish();
-                    String weatherId=countyList.get(position).getWeatherId();
+//                    String weatherId=countyList.get(position).getWeatherId();
+//                    String weatherId=countyList1.get(position).getId();
+                    String weatherId="";
+                    String tempCountyEn=dataList.get(position);
+                    for (int i=0;i<countyList1.size();i++){
+                        if (tempCountyEn.split(" ")[2].equals(countyList1.get(i).getCityEn())){
+                            weatherId=countyList1.get(i).getId();
+                            Log.d("bbb1", String.valueOf(countyList1.get(i)));
+                            break;
+                        }
+                    }
+
+
+                    Log.d("weatherId", weatherId);
                     if (getActivity() instanceof MainActivity){
+                        Log.d("where", "MainActivity");
                         Intent intent=new Intent(getActivity(),WeatherActivity.class);
                         intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
                         getActivity().finish();
                     }else if (getActivity() instanceof WeatherActivity){
-                        WeatherActivity activity=(WeatherActivity)getActivity();
+                        Log.d("where", "WeatherActivity");
+                        final WeatherActivity activity=(WeatherActivity)getActivity();
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherId);
+                        //不要问我为什么要在这里加一个延时，因为第三方服务器拒绝我短时间内发送两个请求，笑哭emmmmmmm
+                        final String finalWeatherId = weatherId;
+                        TimerTask task=new TimerTask() {
+                            @Override
+                            public void run() {
+                                activity.requestForecast1(finalWeatherId);
+                            }
+                        };
+                        Timer timer=new Timer();
+                        timer.schedule(task,1000);
                     }
                 }
             }
@@ -212,11 +439,15 @@ public class ChooseAreaFragment extends Fragment {
     private void queryProvinces(){
         titleText.setText("中国");
         backButton.setVisibility(View.GONE);
-        provinceList=LitePal.findAll(Province.class);
-        if (provinceList.size()>0){
+//        provinceList=LitePal.findAll(Province.class);
+//        if (provinceList.size()>0){
+        if (provinceList1.size()>0){
             dataList.clear();
-            for (Province province:provinceList){
-                dataList.add(province.getProvinceName());
+//            for (Province province:provinceList){
+//                dataList.add(province.getProvinceName());
+//            }
+            for (Province1 province1:provinceList1){
+                dataList.add(province1.getProvinceZh()+" 1 "+province1.getProvinceEn());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -232,20 +463,26 @@ public class ChooseAreaFragment extends Fragment {
      * 将得到的数据设置到ListView中显示
      */
     private void queryCities(){
-        titleText.setText(selectedProvince.getProvinceName());
+//        titleText.setText(selectedProvince.getProvinceName());
+        titleText.setText(selectedProvince1.getProvinceZh());
         backButton.setVisibility(View.VISIBLE);
-        cityList= LitePal
-                .where("provinceid = ?"
-                        //查找provinceid为当前selectedProvince的ID的数据
-                        ,String.valueOf(selectedProvince.getId()))
-                //find返回值为List<T>
-                // 来自官方的示例 https://github.com/LitePalFramework/LitePal
-                //List<Song> songs = LitePal.where("name like ? and duration < ?", "song%", "200").order("duration").find(Song.class);
-                .find(City.class);
-        if (cityList.size()>0){
+//        cityList= LitePal
+//                .where("provinceid = ?"
+//                        //查找provinceid为当前selectedProvince的ID的数据
+//                        ,String.valueOf(selectedProvince.getId()))
+//                //find返回值为List<T>
+//                // 来自官方的示例 https://github.com/LitePalFramework/LitePal
+//                //List<Song> songs = LitePal.where("name like ? and duration < ?", "song%", "200").order("duration").find(Song.class);
+//                .find(City.class);
+//        if (cityList.size()>0){
+        if (cityList1.size()>0){
             dataList.clear();
-            for (City city:cityList){
-                dataList.add(city.getCityName());
+//            for (City city:cityList){
+//                dataList.add(city.getCityName());
+//            }
+            for (City1 city1:cityList1){
+                if (city1.getProvinceEn().equals(selectedProvince1.getProvinceEn()))
+                    dataList.add(city1.getCityZh()+" 2 "+city1.getCityEn());
             }
             //notifyDataSetInvalidated()和notifyDataSetChanged()
             //当改变Adapter数据后，调用两个方法都会刷新视图
@@ -273,13 +510,22 @@ public class ChooseAreaFragment extends Fragment {
      * 将得到的数据设置到ListView中显示
      */
     private void queryCounties(){
-        titleText.setText(selectedCity.getCityName());
+//        titleText.setText(selectedCity.getCityName());
+        titleText.setText(selectedCity1.getCityZh()+selectedCity1.getCityEn());
         titleText.setVisibility(View.VISIBLE);
-        countyList=LitePal.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
-        if (countyList.size()>0){
+//        countyList=LitePal.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
+//        if (countyList.size()>0){
+        if (countyList1.size()>0){
             dataList.clear();
-            for (County county:countyList){
-                dataList.add(county.getCountyName());
+            for (County1 county1:countyList1){
+                Log.d("bbbb", county1.getCityZh()+"|||||||||"+county1.getLeaderEn()+county1.getLeaderZh()+"|||||||||"+selectedCity1.getLeaderEn()+selectedCity1.getLeaderZh());
+                if (county1.getLeaderEn().equals(selectedCity1.getLeaderEn())){
+                    dataList.add(county1.getCityZh()+" 3 "+county1.getCityEn());
+                    Log.d("bbbbb", county1.getCityEn()+"|||-------|||||"+selectedCity1.getCityEn());
+                }
+
+
+
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);

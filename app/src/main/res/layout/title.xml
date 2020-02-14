@@ -19,6 +19,7 @@
         android:layout_centerInParent="true"
         android:textColor="#fff"
         android:text="title_city"
+        android:background="#8000"
         android:textSize="20sp"/>
 
     <TextView

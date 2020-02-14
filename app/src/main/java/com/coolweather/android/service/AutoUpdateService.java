@@ -10,6 +10,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.coolweather.android.gson.Weather;
+import com.coolweather.android.gson.Weather1;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
@@ -53,9 +54,11 @@ public class AutoUpdateService extends Service {
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString=prefs.getString("weather",null);
         if (weatherString!=null){
-            final Weather weather= Utility.handleWeatherResponse(weatherString);
-            String weatherId=weather.basic.weatherId;
-            String weatherUrl="http://guolin.tech/api/weather?cityid="+weatherId+"&key=7205afdb284a46e4b6f139642a483940";
+//            final Weather weather= Utility.handleWeatherResponse(weatherString);
+            final Weather1 weather= Utility.handleWeather1Response(weatherString);
+            String weatherId=weather.cityid;
+//            String weatherUrl="http://guolin.tech/api/weather?cityid="+weatherId+"&key=7205afdb284a46e4b6f139642a483940";
+            String weatherUrl="https://tianqiapi.com/api?version=v6&appid=84757962&appsecret=zQc6drQo&cityid="+weatherId;
             HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -65,8 +68,8 @@ public class AutoUpdateService extends Service {
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                     String responseText=response.body().string();
-                    Weather weather=Utility.handleWeatherResponse(responseText);
-                    if (weather!=null&&"od".equals(weather.status)){
+                    Weather1 weather=Utility.handleWeather1Response(responseText);
+                    if (weather!=null){
                         SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                         editor.putString("weather",responseText);
                         editor.apply();
