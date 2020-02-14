@@ -330,7 +330,8 @@ public class WeatherActivity extends AppCompatActivity {
 //                            startService(intent);
                         }else {
 //                            Toast.makeText(WeatherActivity.this,"成功接收到服务器的数据，但是获取预报信息失败",Toast.LENGTH_SHORT).show();
-                            Toast.makeText(WeatherActivity.this,"requestForecast1--"+responseText,Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(WeatherActivity.this,"requestForecast1--"+responseText,Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(WeatherActivity.this,"操作失败，请重新刷新",Toast.LENGTH_SHORT).show();
                             Log.d("hahaha", responseText);
                         }
                         swipeRefresh.setRefreshing(false);

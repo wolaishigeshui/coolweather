@@ -346,7 +346,7 @@ public class ChooseAreaFragment extends Fragment {
                 if (currentLevel==LEVEL_PROVINCE){
 //                    selectedProvince=provinceList.get(position);
                     selectedProvince1=provinceList1.get(position);
-                    Toast.makeText(getContext(),selectedProvince1.getProvinceZh()+position,Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(),selectedProvince1.getProvinceZh()+position,Toast.LENGTH_SHORT).show();
                     Log.d("aaa1p", selectedProvince1.toString()+position);
                     queryCities();
                 }else if (currentLevel==LEVEL_CITY){
@@ -382,9 +382,9 @@ public class ChooseAreaFragment extends Fragment {
 //                    String weatherId=countyList.get(position).getWeatherId();
 //                    String weatherId=countyList1.get(position).getId();
                     String weatherId="";
-                    String tempCountyEn=dataList.get(position);
+                    String tempCountyZh=dataList.get(position);
                     for (int i=0;i<countyList1.size();i++){
-                        if (tempCountyEn.split(" ")[2].equals(countyList1.get(i).getCityEn())){
+                        if (tempCountyZh.equals(countyList1.get(i).getCityZh())){
                             weatherId=countyList1.get(i).getId();
                             Log.d("bbb1", String.valueOf(countyList1.get(i)));
                             break;
@@ -447,7 +447,8 @@ public class ChooseAreaFragment extends Fragment {
 //                dataList.add(province.getProvinceName());
 //            }
             for (Province1 province1:provinceList1){
-                dataList.add(province1.getProvinceZh()+" 1 "+province1.getProvinceEn());
+//                dataList.add(province1.getProvinceZh()+" 1 "+province1.getProvinceEn());
+                dataList.add(province1.getProvinceZh());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -482,7 +483,8 @@ public class ChooseAreaFragment extends Fragment {
 //            }
             for (City1 city1:cityList1){
                 if (city1.getProvinceEn().equals(selectedProvince1.getProvinceEn()))
-                    dataList.add(city1.getCityZh()+" 2 "+city1.getCityEn());
+//                    dataList.add(city1.getCityZh()+" 2 "+city1.getCityEn());
+                    dataList.add(city1.getCityZh());
             }
             //notifyDataSetInvalidated()和notifyDataSetChanged()
             //当改变Adapter数据后，调用两个方法都会刷新视图
@@ -511,7 +513,7 @@ public class ChooseAreaFragment extends Fragment {
      */
     private void queryCounties(){
 //        titleText.setText(selectedCity.getCityName());
-        titleText.setText(selectedCity1.getCityZh()+selectedCity1.getCityEn());
+        titleText.setText(selectedCity1.getCityZh());
         titleText.setVisibility(View.VISIBLE);
 //        countyList=LitePal.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
 //        if (countyList.size()>0){
@@ -520,7 +522,8 @@ public class ChooseAreaFragment extends Fragment {
             for (County1 county1:countyList1){
                 Log.d("bbbb", county1.getCityZh()+"|||||||||"+county1.getLeaderEn()+county1.getLeaderZh()+"|||||||||"+selectedCity1.getLeaderEn()+selectedCity1.getLeaderZh());
                 if (county1.getLeaderEn().equals(selectedCity1.getLeaderEn())){
-                    dataList.add(county1.getCityZh()+" 3 "+county1.getCityEn());
+//                    dataList.add(county1.getCityZh()+" 3 "+county1.getCityEn());
+                    dataList.add(county1.getCityZh());
                     Log.d("bbbbb", county1.getCityEn()+"|||-------|||||"+selectedCity1.getCityEn());
                 }
 
@@ -556,7 +559,8 @@ public class ChooseAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败--从服务器上查询"+type,Toast.LENGTH_SHORT).show();
+                        //error：2001--从服务器上查询
+                        Toast.makeText(getContext(),"加载失败，错误代码2001"+type,Toast.LENGTH_SHORT).show();
                     }
                 });
             }
