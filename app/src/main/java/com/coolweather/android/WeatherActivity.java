@@ -462,7 +462,7 @@ public class WeatherActivity extends AppCompatActivity {
             String degree=weather.tem+"℃";
             String weatherInfo=Utility.decode(weather.wea);
             titleCity.setText(cityName);
-            titleUpdateTime.setText(updateTime);
+            titleUpdateTime.setText("上次更新时间:"+updateTime);
             degreeText.setText(degree);
             weatherInfoText.setText(weatherInfo);
 //            forecastLayout.removeAllViews();
